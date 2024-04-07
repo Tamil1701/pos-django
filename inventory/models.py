@@ -24,6 +24,8 @@ class Product(models.Model):
     quantity = models.PositiveIntegerField(null=True)
     description = models.CharField(max_length=200, null=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
+    def __str__(self):
+        return str(self.item) + ": $" + str(self.price)
 
     def __str__(self) -> str:
         return self.name
