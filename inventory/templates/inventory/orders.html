@@ -11,34 +11,23 @@
             <th scope="col">Ordered Product</th>
             <th scope="col">Created by</th>
             <th scope="col">Quantity</th>
+            <th scope="col">Seller</th>
             <th scope="col">Order Date</th>
           </tr>
         </thead>
-        {% if user.is_staff and user.is_superuser %}
         <tbody>
           {% for order in orders %}
           <tr>
             <td>{{ order.product }}</td>
             <td>{{ order.created_by.username }}</td>
             <td>{{ order.order_quantity }}</td>
+            <td title="{% if order.seller == 'seller1' %}Seller 1 - Address 1{% elif order.seller == 'seller2' %}Seller 2 - Address 2{% elif order.seller == 'seller3' %}Seller 3 - Address 3{% endif %}">
+              {{ order.seller }}
+            </td>
             <td>{{ order.date }}</td>
           </tr>
           {% endfor %}
         </tbody>
-        {% else %}
-        <tbody>
-          {% for order in orders %}
-          {% if user.username == order.created_by.username %}
-          <tr>
-            <td>{{ order.product }}</td>
-            <td>{{ order.created_by.username }}</td>
-            <td>{{ order.order_quantity }}</td>
-            <td>{{ order.date }}</td>
-          </tr>
-          {% endif %}
-          {% endfor %}
-        </tbody>
-        {% endif %}
       </table>
     </div>
     <div class="col-md-4">
@@ -46,11 +35,54 @@
         <h4>Create a New Order</h4>
         <hr>
         {% csrf_token %}
-        {{ form|crispy}}
+        {{ form|crispy }}
         <br>
         <button type="submit" class="btn btn-primary">Create Order</button>
       </form>
     </div>
   </div>
 </div>
+<div class="container"><div class="col-md-4">
+  <h2>Low Stock Products</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Product Name</th>
+            <th>Quantity</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for product in low_stock_products %}
+        <tr>
+            <td>{{ product.name }}</td>
+            <td>{{ product.quantity }}</td>
+            <td style="color: orange;">Low Stock</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- Display Out of Stock Products -->
+<h2>Out of Stock Products</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Product Name</th>
+            <th>Quantity</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for product in out_of_stock_products %}
+        <tr>
+            <td>{{ product.name }}</td>
+            <td>{{ product.quantity }}</td>
+            <td style="color: red;">Out of Stock</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+  
+</div></div>
 {% endblock %}

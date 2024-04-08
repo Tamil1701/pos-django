@@ -36,8 +36,13 @@ class Order(models.Model):
     created_by = models.ForeignKey(User, models.CASCADE, null=True)
     order_quantity = models.PositiveIntegerField(null=True)
     date = models.DateTimeField(auto_now_add=True)
-    
+    seller_choices = [
+        ('seller1', 'Seller 1 - Address 1'),
+        ('seller2', 'Seller 2 - Address 2'),
+        ('seller3', 'Seller 3 - Address 3'),
+    ]
+    seller = models.CharField(max_length=10, choices=seller_choices, default='seller1')
 
     def __str__(self) -> str:
-        return f'{self.product} ordered quantity {self.order_quantity}'
+        return f'{self.product} ordered quantity {self.order_quantity} from {self.get_seller_display()}'
 

@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from inventory.forms import UserRegistry, ProductForm, OrderForm
+from inventory.forms import UserRegistry, ProductForm, OrderForm, EditProductForm
 from inventory.models import Product, Order
 
 @login_required
@@ -29,25 +29,61 @@ def index(request):
 
 @login_required
 def products(request):
+    # Retrieve all existing products
     products = Product.objects.all()
-    if request.method == 'POST':
-        form = ProductForm(request.POST)
-        if form.is_valid():
-            form.save()
+
+    # Initialize forms for adding and editing products
+    add_form = ProductForm(request.POST or None)
+    edit_form = EditProductForm(request.POST or None)
+
+    # Handle form submission for adding a new product
+    if request.method == 'POST' and 'add_product' in request.POST:
+        add_form = ProductForm(request.POST)
+        if add_form.is_valid():
+            add_form.save()
             return redirect('products')
-    else:
-        form = ProductForm()
+
+    # Handle form submission for editing an existing product
+    if request.method == 'POST' and 'edit_product' in request.POST:
+        edit_form = EditProductForm(request.POST)
+        if edit_form.is_valid():
+            selected_product_id = edit_form.cleaned_data['product_choice'].id
+            selected_product = Product.objects.get(id=selected_product_id)
+            selected_product.quantity = edit_form.cleaned_data['quantity']
+            selected_product.price = edit_form.cleaned_data['price']
+            selected_product.description = edit_form.cleaned_data['description']
+            selected_product.save()
+            return redirect('products')
+
+    # Calculate total price for each existing product
+    for product in products:
+        product.total_price = product.price * product.quantity
+    
+    # Retrieve products with low stock (quantity <= 2) and out-of-stock products (quantity <= 0)
+    low_stock_products = Product.objects.filter(quantity__lte=10)
+    out_of_stock_products = Product.objects.filter(quantity__lte=0)
+
+
     context = {
         "title": "Products",
         "products": products,
-        "form": form
+        "add_form": add_form,
+        "edit_form": edit_form,
+        "low_stock_products": low_stock_products,
+        "out_of_stock_products": out_of_stock_products
     }
     return render(request, 'inventory/products.html', context)
 
+
 @login_required
 def orders(request):
+    # Retrieve all orders
     orders = Order.objects.all()
-    print([i for i in request])
+
+    # Retrieve low-stock and out-of-stock products
+    low_stock_products = Product.objects.filter(quantity__gt=2, quantity__lte=20)
+    out_of_stock_products = Product.objects.filter(quantity__lte=2)
+
     if request.method == 'POST':
         form = OrderForm(request.POST)
         if form.is_valid():
@@ -57,12 +93,16 @@ def orders(request):
             return redirect('orders')
     else:
         form = OrderForm()
+
     context = {
         "title": "Orders",
         "orders": orders,
-        "form": form
+        "form": form,
+        "low_stock_products": low_stock_products,
+        "out_of_stock_products": out_of_stock_products
     }
     return render(request, 'inventory/orders.html', context)
+
 
 @login_required
 def users(request):
@@ -93,3 +133,17 @@ def register(request):
         "form": form
     }
     return render(request, 'inventory/register.html', context)
+
+# @login_required
+# def products(request):
+#     products = Product.objects.all()
+
+#     # Calculate total price for each product
+#     for product in products:
+#         product.total_price = product.price * product.quantity
+
+#     context = {
+#         "title": "Products",
+#         "products": products
+#     }
+#     return render(request, 'inventory/products.html', context)

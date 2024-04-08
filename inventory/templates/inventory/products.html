@@ -5,15 +5,17 @@
 <div class="container">
     <div class="row">
         <div class="col-md-8">
+            <h2>Product List</h2>
             <table class="table">
-                
                 <thead>
                     <tr>
-                        <th scope="col">Product Name</th>
-                        <th scope="col">Quantity</th>
-                        <th scope="col">Category</th>
-                        <th scope="col">Description</th>
-                        <th scope="col">Price</th>
+                        <th>Product Name</th>
+                        <th>Quantity</th>
+                        <th>Category</th>
+                        <th>Description</th>
+                        <th>Price</th>
+                        <th>Total Price</th>
+                        
                     </tr>
                 </thead>
                 <tbody>
@@ -24,27 +26,27 @@
                         <td>{{ product.category }}</td>
                         <td>{{ product.description }}</td>
                         <td>{{ product.price }}</td>
+                        <td>{{ product.total_price }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
-        {% if user.is_staff and user.is_superuser %}
         <div class="col-md-4">
+            <h2>Add Product</h2>
             <form method="POST">
-                <h4>Add a New Product</h4>
-                <hr>
                 {% csrf_token %}
-                {{ form|crispy}}
-                <br>
-                <button type="submit" class="btn btn-primary">Add</button>
+                {{ add_form.as_p }}
+                <button type="submit" name="add_product" class="btn btn-primary">Add Product</button>
+            </form>
+
+            <h2>Edit Product</h2>
+            <form method="POST">
+                {% csrf_token %}
+                {{ edit_form.as_p }}
+                <button type="submit" name="edit_product" class="btn btn-primary">Edit Product</button>
             </form>
         </div>
-        {% else %}
-        <div class="col-md-4">
-
-        </div>
-        {% endif %}
     </div>
 </div>
 {% endblock %}

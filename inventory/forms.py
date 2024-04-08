@@ -21,4 +21,10 @@ class ProductForm(forms.ModelForm):
 class OrderForm(forms.ModelForm):
     class Meta:
         model = Order
-        fields = ['product', 'order_quantity']
+        fields = ['product', 'order_quantity','seller']
+
+class EditProductForm(forms.Form):
+    product_choice = forms.ModelChoiceField(queryset=Product.objects.all(), empty_label="Select Product to Edit")
+    quantity = forms.IntegerField(min_value=1)
+    price = forms.DecimalField(min_value=0.01, max_digits=10, decimal_places=2)
+    description = forms.CharField(max_length=200, required=False)
