@@ -96,10 +96,23 @@ def orders(request):
     if request.method == 'POST':
         form = OrderForm(request.POST)
         if form.is_valid():
-            instance = form.save(commit=False)
-            instance.created_by = request.user
-            instance.save()
-            return redirect('orders')
+            # Get data from the form
+            product_id = form.cleaned_data['product'].id
+            quantity = form.cleaned_data['order_quantity']
+
+            # Retrieve the product instance based on the selected product ID
+            product = Product.objects.get(id=product_id)
+
+            # Calculate the total cost of the order
+            total_cost = product.price * quantity
+
+            # Create and save the order with the calculated total cost
+            order_instance = form.save(commit=False)
+            order_instance.created_by = request.user
+            order_instance.total_cost = total_cost
+            order_instance.save()
+            
+            return redirect('orders')  # Redirect to the same page after successful form submission
     else:
         form = OrderForm()
 
@@ -111,7 +124,6 @@ def orders(request):
         "out_of_stock_products": out_of_stock_products
     }
     return render(request, 'inventory/orders.html', context)
-
 
 @login_required
 def users(request):
@@ -178,8 +190,15 @@ def generate_invoice(request, order_id):
 def get_order_details(request, order_id):
     try:
         order = Order.objects.get(id=order_id)
+        total_cost = order.order_quantity * order.product.price
         order_data = {
             'product': order.product.name,
+            'order_id':order.order_id,
+            
+            'price':order.product.price,
+            'total_cost': total_cost,  # Include total cost in response
+            
+
             'created_by': order.created_by.username,
             'order_quantity': order.order_quantity,
             'seller': order.get_seller_display(),
@@ -200,6 +219,8 @@ def update_order_status(request, order_id):
         return JsonResponse({'success': True})
     else:
         return JsonResponse({'success': False, 'error': 'Invalid request method'})
+    
+
 # @login_required
 # def products(request):
 #     products = Product.objects.all()

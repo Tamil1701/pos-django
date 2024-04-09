@@ -49,9 +49,10 @@ class Order(models.Model):
     order_quantity = models.PositiveIntegerField(null=True)
     date = models.DateTimeField(auto_now_add=True)
     seller_choices = [
-        ('seller1', 'Seller 1 - Address 1'),
-        ('seller2', 'Seller 2 - Address 2'),
-        ('seller3', 'Seller 3 - Address 3'),
+        ('seller1', 'seller-1<br>John Doe<br>456, Gandhi Road,<br>Anna Nagar,<br>Chennai - 600001,<br>Tamil Nadu, India.'),
+        ('seller2', 'seller-2<br>Jane Doe<br>789, Marina Road,<br>Madipakkam,<br>Chennai - 600002,<br>Tamil Nadu, India.'),
+        ('seller3', 'seller-3<br>John Smith<br>123, Mount Road,<br>Tambaram,<br>Chennai - 600003,<br>Tamil Nadu, India.'),
+    
     ]
     seller = models.CharField(max_length=10, choices=seller_choices, default='seller1')
     order_status = models.CharField(max_length=20, choices=ORDER_STATUS_CHOICES, default='pending')
