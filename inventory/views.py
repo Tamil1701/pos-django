@@ -1,8 +1,17 @@
+import os
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from inventory.forms import UserRegistry, ProductForm, OrderForm, EditProductForm
 from inventory.models import Product, Order
+from reportlab.pdfgen import canvas
+from django.http import HttpResponse
+from django.template.loader import get_template
+from xhtml2pdf import pisa
+from django.http import JsonResponse
+
+
+from inventory.settings import MEDIA_ROOT
 
 @login_required
 def index(request):
@@ -134,6 +143,63 @@ def register(request):
     }
     return render(request, 'inventory/register.html', context)
 
+@login_required
+def generate_invoice(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+
+    # Prepare context to render the template
+    context = {
+        'order': order,
+    }
+
+    # Load the template
+    template_path = 'inventory/invoice_template.html'
+    template = get_template(template_path)
+    rendered_html = template.render(context)
+
+    # Create PDF response
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="invoice_{order.id}.pdf"'
+
+    # Generate PDF from rendered HTML
+    pisa_status = pisa.CreatePDF(
+        rendered_html,
+        dest=response,
+        link_callback=lambda uri, _: os.path.join(MEDIA_ROOT, uri),
+    )
+
+    if pisa_status.err:
+        return HttpResponse('PDF generation failed.', status=500)
+
+    return response
+
+
+@login_required
+def get_order_details(request, order_id):
+    try:
+        order = Order.objects.get(id=order_id)
+        order_data = {
+            'product': order.product.name,
+            'created_by': order.created_by.username,
+            'order_quantity': order.order_quantity,
+            'seller': order.get_seller_display(),
+            'date': order.date.strftime('%Y-%m-%d %H:%M:%S'),  # Format date as string
+            'order_status': order.get_order_status_display(),
+        }
+        return JsonResponse(order_data)
+    except Order.DoesNotExist:
+        return JsonResponse({'error': 'Order not found'}, status=404)
+    
+@login_required 
+def update_order_status(request, order_id):
+    if request.method == 'POST':
+        new_status = request.POST.get('new_status')
+        order = get_object_or_404(Order, pk=order_id)
+        order.order_status = new_status
+        order.save()
+        return JsonResponse({'success': True})
+    else:
+        return JsonResponse({'success': False, 'error': 'Invalid request method'})
 # @login_required
 # def products(request):
 #     products = Product.objects.all()

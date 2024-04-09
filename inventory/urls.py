@@ -19,6 +19,7 @@ from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 from inventory import views
+from .views import generate_invoice
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -29,5 +30,8 @@ urlpatterns = [
     path('user/', views.user, name='user'),
     path('register/', views.register, name='register'),
     path('', auth.LoginView.as_view(template_name='inventory/login.html'), name='login'),
+    path('get_order_details/<int:order_id>/', views.get_order_details, name='get_order_details'),
+    path('update_order_status/<int:order_id>/', views.update_order_status, name='update_order_status'),
+    path('generate_invoice/<int:order_id>/', views.generate_invoice, name='generate_invoice'),
     path('logout/', auth.LogoutView.as_view(template_name='inventory/logout.html'), name='logout')
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

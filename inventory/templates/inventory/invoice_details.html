@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Invoice Details</title>
+</head>
+<body>
+    {% if order %}
+    <h2>Invoice Details</h2>
+    <p><strong>Ordered Product:</strong> {{ order.product }}</p>
+    <p><strong>Ordered by:</strong> {{ order.created_by.username }}</p>
+    <p><strong>Quantity:</strong> {{ order.order_quantity }}</p>
+    <p><strong>Seller:</strong> {{ order.get_seller_display }}</p>
+    <p><strong>Order Date:</strong> {{ order.date }}</p>
+    <p><strong>Order Status:</strong> {{ order.get_order_status_display }}</p>
+    <p><strong>Invoice Status:</strong> {{ order.get_invoice_status_display }}</p>
+    {% else %}
+    <p>{{ error }}</p>
+    {% endif %}
+</body>
+</html>

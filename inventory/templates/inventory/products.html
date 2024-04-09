@@ -1,26 +1,29 @@
 {% extends 'inventory/base.html' %}
-{% block title %}{{ header }} {% endblock %}
+{% block title %}{{ header }}{% endblock %}
 {% load crispy_forms_tags %}
+
 {% block content %}
+<br><br>
 <div class="container">
     <div class="row">
-        <div class="col-md-8">
+        <div class="col-md-8" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); padding: 20px;">
             <h2>Product List</h2>
-            <table class="table">
-                <thead>
+            <table class="table table-bordered table-hover">
+                <thead class="thead-dark">
                     <tr>
+                        <th>S/No</th>
                         <th>Product Name</th>
                         <th>Quantity</th>
                         <th>Category</th>
                         <th>Description</th>
                         <th>Price</th>
                         <th>Total Price</th>
-                        
                     </tr>
                 </thead>
                 <tbody>
                     {% for product in products %}
                     <tr>
+                        <td>{{ forloop.counter }}</td> <!-- This will generate the serial number -->
                         <td>{{ product.name }}</td>
                         <td>{{ product.quantity }}</td>
                         <td>{{ product.category }}</td>
@@ -32,21 +35,71 @@
                 </tbody>
             </table>
         </div>
-        <div class="col-md-4">
-            <h2>Add Product</h2>
-            <form method="POST">
-                {% csrf_token %}
-                {{ add_form.as_p }}
-                <button type="submit" name="add_product" class="btn btn-primary">Add Product</button>
-            </form>
-
-            <h2>Edit Product</h2>
-            <form method="POST">
-                {% csrf_token %}
-                {{ edit_form.as_p }}
-                <button type="submit" name="edit_product" class="btn btn-primary">Edit Product</button>
-            </form>
+        
+        <div class="col-md-4" style="height: auto; width: auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); padding: 20px; margin-left: 5%;">
+            <div class="btn-group mb-3">
+                <button id="showAddProductFormBtn" class="btn btn-primary">Add Product</button>
+                <button id="showEditProductFormBtn" class="btn btn-primary">Edit Product</button>
+            </div>
+            
+            <div id="formContainer">
+                <div id="addProductForm" style="display: none;">
+                    <h2>Add Product</h2>
+                    <form method="POST">
+                        {% csrf_token %}
+                        {{ add_form|crispy }}
+                        <button type="submit" name="add_product" class="btn btn-primary">Add Product</button>
+                    </form>
+                </div>
+        
+                <div id="editProductForm" style="display: none;">
+                    <h2>Edit Product</h2>
+                    <form method="POST">
+                        {% csrf_token %}
+                        {{ edit_form|crispy }}
+                        <button type="submit" name="edit_product" class="btn btn-primary">Edit Product</button>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+<script>
+    // JavaScript to toggle between Add Product and Edit Product forms
+    document.addEventListener("DOMContentLoaded", function() {
+        const addProductForm = document.getElementById("addProductForm");
+        const editProductForm = document.getElementById("editProductForm");
+        const showAddProductBtn = document.getElementById("showAddProductFormBtn");
+        const showEditProductBtn = document.getElementById("showEditProductFormBtn");
+
+        // Function to toggle visibility of forms and update button styles
+        function toggleForms(formToShow) {
+            if (formToShow === "add") {
+                addProductForm.style.display = "block";
+                editProductForm.style.display = "none";
+                showAddProductBtn.style.backgroundColor = "green"; // Change button color to green
+                showEditProductBtn.style.backgroundColor = ""; // Reset other button color
+            } else if (formToShow === "edit") {
+                addProductForm.style.display = "none";
+                editProductForm.style.display = "block";
+                showAddProductBtn.style.backgroundColor = ""; // Reset other button color
+                showEditProductBtn.style.backgroundColor = "green"; // Change button color to green
+            }
+        }
+
+        // Show Add Product form when "Add Product" button is clicked
+        showAddProductBtn.addEventListener("click", function() {
+            toggleForms("add");
+        });
+
+        // Show Edit Product form when "Edit Product" button is clicked
+        showEditProductBtn.addEventListener("click", function() {
+            toggleForms("edit");
+        });
+
+        // Initially show Add Product form on page load
+        toggleForms("add");
+    });
+</script>
 {% endblock %}
