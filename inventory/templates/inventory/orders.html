@@ -9,6 +9,24 @@
     border-radius: 5px; /* Add border radius for rounded corners */
   }
 </style> -->
+<style>
+  .order-row{
+    /* height: fit-content;
+    background-color: blue; */
+  }
+  .order_status_td{
+    color: #fff;
+    position: relative;
+  }
+  .statusbox{
+    display: flex;
+    align-self: center;
+    position: absolute;
+    top:50%;
+    left:50%;
+    transform: translate(-50%,-50%);
+  }
+</style>
 <br>
 <br>
 <div class="container">
@@ -74,11 +92,13 @@
   
 </div>
 <div class="container">
-  <div class="row">
-    <div class="col-md-8">
-      <table class="table">
+  <div class="row ">
+    <div class="col-md-8 table-responsive ">
+      <table class="table table-bordered">
         <thead>
           <tr>
+            <th scope="col">S/No</th>
+            <th scope="col">Invoice</th>
             <th scope="col">Ordered Product</th>
             <th scope="col">Created by</th>
             <th scope="col">Quantity</th>
@@ -91,6 +111,12 @@
         <tbody>
           {% for order in orders %}
           <tr class="order-row" data-order-id="{{ order.id }}">
+            <td>{{ forloop.counter }}</td>
+            <td>
+              <button type="button" class="btn btn-primary">
+                <span class="sr-only">Print</span>
+              </button>
+            </td>
             <td>{{ order.product }}</td>
             <td>{{ order.created_by.username }}</td>
             <td>{{ order.order_quantity }}</td>
@@ -98,9 +124,14 @@
               {{ order.seller }}
             </td>
             <td>{{ order.date }}</td>
-            <td>{{ order.get_order_status_display }}</td>
+            <td class=" order_status_td">
+                <div class="order-status-os_t statusbox badge">
+                  {{ order.get_order_status_display }}
+                </div>
+
+            </td>
             <td>
-              <select class="order-status-select order-status-cell">
+              <select class="order-status-select">
                 {% for status in order.ORDER_STATUS_CHOICES %}
                     <option value="{{ status.0 }}" {% if order.order_status == status.0 %}selected{% endif %}>{{ status.1 }}</option>
                 {% endfor %}
@@ -112,14 +143,14 @@
         </tbody>
       </table>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-4 card ">
       <form method="POST">
         <h4>Create a New Order</h4>
         <hr>
         {% csrf_token %}
         {{ form|crispy }}
         <br>
-        <button type="submit" class="btn btn-primary">Create Order</button>
+        <button type="submit" class="btn btn-primary" style="padding-bottom: 10px; margin-bottom: 10px;">Create Order</button>
       </form>
     </div>
   </div>
@@ -258,65 +289,65 @@
         });
     });
 
-    $(document).ready(function() {
-    // Function to style order status text
-    function styleOrderStatus() {
-      $('.order-status-cell').each(function() {
-        var orderStatusText = $(this).text().trim(); // Get order status text
+  //   $(document).ready(function() {
+  //   // Function to style order status text
+  //   function styleOrderStatus() {
+  //     $('.order-status-cell').each(function() {
+  //       var orderStatusText = $(this).text().trim(); // Get order status text
 
-        // Determine color and font weight based on order status
-        var color, fontWeight;
-        switch (orderStatusText) {
-          case 'Pending':
-            color = 'orange';
-            fontWeight = 'bold';
-            break;
-          case 'Completed':
-            color = 'green';
-            fontWeight = 'bold';
-            break;
-          case 'Canceled':
-            color = 'red';
-            fontWeight = 'bold';
-            break;
-          default:
-            color = 'black'; // Default color
-            fontWeight = 'normal'; // Default font weight
-            break;
-        }
+  //       // Determine color and font weight based on order status
+  //       var color, fontWeight;
+  //       switch (orderStatusText) {
+  //         case 'Pending':
+  //           color = 'orange';
+  //           fontWeight = 'bold';
+  //           break;
+  //         case 'Completed':
+  //           color = 'green';
+  //           fontWeight = 'bold';
+  //           break;
+  //         case 'Canceled':
+  //           color = 'red';
+  //           fontWeight = 'bold';
+  //           break;
+  //         default:
+  //           color = 'black'; // Default color
+  //           fontWeight = 'normal'; // Default font weight
+  //           break;
+  //       }
 
-        // Apply styling to order status text
-        $(this).css({
-          'color': color,
-          'font-weight': fontWeight
-        });
-      });
-    }
+  //       // Apply styling to order status text
+  //       $(this).css({
+  //         'color': color,
+  //         'font-weight': fontWeight
+  //       });
+  //     });
+  //   }
 
-    // Call the function to style order status text on page load
-    styleOrderStatus();
-  });
+  //   // Call the function to style order status text on page load
+  //   styleOrderStatus();
+  // });
 
-  function updateOrderStatus(selectElement, orderId) {
-    var selectedStatus = selectElement.value;
-    var orderRow = document.getElementById('order-row-' + orderId);
+  // function updateOrderStatus(selectElement, orderId) {
+  //   var selectedStatus = selectElement.value;
+  //   var orderRow = document.getElementById('order-row-' + orderId);
 
-    // Set background color and font weight based on the selected status
-    if (selectedStatus === 'pending') {
-      orderRow.style.backgroundColor = 'lightblue';
-    } else if (selectedStatus === 'completed') {
-      orderRow.style.backgroundColor = 'lightgreen';
-    } else if (selectedStatus === 'canceled') {
-      orderRow.style.backgroundColor = 'lightcoral';
-    }
+  //   // Set background color and font weight based on the selected status
+  //   if (selectedStatus === 'pending') {
+  //     orderRow.style.backgroundColor = 'lightblue';
+  //   } else if (selectedStatus === 'completed') {
+  //     orderRow.style.backgroundColor = 'lightgreen';
+  //   } else if (selectedStatus === 'canceled') {
+  //     orderRow.style.backgroundColor = 'lightcoral';
+  //   }
 
-    // Make text bold for better visibility
-    orderRow.style.fontWeight = 'bold';
+  //   // Make text bold for better visibility
+  //   orderRow.style.fontWeight = 'bold';
 
-    // You can also make an AJAX request to update the order status in the backend
-    // Here, you can implement the logic to send the updated status to the server
-    // using a Django view or API endpoint.
-  }
+  //   // You can also make an AJAX request to update the order status in the backend
+  //   // Here, you can implement the logic to send the updated status to the server
+  //   // using a Django view or API endpoint.
+  // }
   //   $(document).ready(function() {
   //   // Function to style order status cells based on status value
   //   function styleOrderStatusCells() {
@@ -372,7 +403,34 @@ function getCookie(name) {
   
 });
 
-    
+
+
+document.addEventListener("DOMContentLoaded", function() {
+        // Get all elements with the class "order-status"
+        const statusCells = document.querySelectorAll(".order-status-os_t");
+
+        // Loop through each status cell
+        statusCells.forEach(function(statusCell) {
+            // Get the status text content and trim any whitespace
+            const status = statusCell.textContent.trim();
+
+            // Apply background color based on order status
+            switch(status) {
+                case 'Pending':
+                    statusCell.style.backgroundColor = '#ffc107'; // Yellow background for Pending
+                    break;
+                case 'Completed':
+                    statusCell.style.backgroundColor = '#28a745'; // Green background for Completed
+                    break;
+                case 'Canceled':
+                    statusCell.style.backgroundColor = '#dc3545'; // Red background for Canceled
+                    break;
+                default:
+                    // Handle other cases or do nothing
+                    break;
+            }
+        });
+    });
  
 </script>
 
