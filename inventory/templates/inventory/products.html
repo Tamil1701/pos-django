@@ -3,6 +3,25 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
+<style>
+    /* Style for information icon */
+    .info-icon {
+        position: relative;
+        display: inline-block;
+    }
+    .info-icon i:hover:after {
+        content: attr(data-tooltip);
+        position: absolute;
+        top: 100%;
+        left: 0;
+        background-color: #fff;
+        padding: 5px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        z-index: 999;
+    }
+    </style>
 <br><br>
 <div class="container">
     <div class="row">
@@ -48,6 +67,7 @@
                     <form method="POST">
                         {% csrf_token %}
                         {{ add_form|crispy }}
+                        <div><span style="color: red;">*Enter price per piece or unit</span></div><br>
                         <button type="submit" name="add_product" class="btn btn-primary">Add Product</button>
                     </form>
                 </div>
